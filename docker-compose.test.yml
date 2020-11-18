@@ -1,0 +1,25 @@
+version: "3.7"
+
+networks:
+  demo_net: {}
+
+x-logging-stdout: &x-logging-stdout
+  driver: "json-file"
+  options:
+    max-size: "1m"
+    max-file: "1"
+
+services:
+  test:
+    container_name: web
+    build: .
+    image: flask-realworld-example-app
+    networks:
+      - demo_net
+    ports:
+      - 5000:5000
+    environment:
+      - FLASK_APP=/app/autoapp.py
+      - FLASK_DEBUG=1
+    command: flask test
+    logging: *x-logging-stdout

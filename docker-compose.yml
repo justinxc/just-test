@@ -1,0 +1,70 @@
+version: "3.7"
+
+volumes:
+  postgresql_data: {}
+
+networks:
+  demo_net: {}
+
+x-logging-stdout: &x-logging-stdout
+  driver: "json-file"
+  options:
+    max-size: "1m"
+    max-file: "1"
+
+services:
+  ########################################
+  ### https://hub.docker.com/_/postgres
+  ########################################
+  postgresql:
+    container_name: postgresql
+    image: postgres:13
+    networks:
+      - demo_net
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=changeme
+      - POSTGRES_DB=realworld
+      # - POSTGRES_INITDB_ARGS
+      # - POSTGRES_INITDB_WALDIR
+      ########################################
+      ### If you set POSTGRES_HOST_AUTH_METHOD to trust, then POSTGRES_PASSWORD is not required.
+      ########################################
+      # - POSTGRES_HOST_AUTH_METHOD=trust
+    logging: *x-logging-stdout
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:4
+    networks:
+      - demo_net
+    ports:
+      - 5050:80
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=changeme
+      - PGADMIN_PORT=5050
+      - PGADMIN_DEFAULT_EMAIL=pgadmin4@pgadmin.org
+      - PGADMIN_DEFAULT_PASSWORD=admin
+
+  web:
+    container_name: web
+    image: flask-realworld-example-app
+    networks:
+      - demo_net
+    ports:
+      - 5000:5000
+    environment:
+      - FLASK_APP=/app/autoapp.py
+      - FLASK_DEBUG=0
+      - DATABASE_URL=postgresql://postgres:changeme@host.docker.internal:5432/realworld
+    logging: *x-logging-stdout
