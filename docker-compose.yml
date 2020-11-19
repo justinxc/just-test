@@ -2,6 +2,8 @@ version: "3.7"
 
 volumes:
   postgresql_data: {}
+  prometheus_data: {}
+  grafana_data: {}
 
 networks:
   demo_net: {}
@@ -71,6 +73,49 @@ services:
     logging: *x-logging-stdout
     healthcheck:
       test: "wget --spider --server-response --quiet 'http://localhost:5000/metrics' 2>&1 | grep 'HTTP/.* 200' || exit 1"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  prometheus:
+    image: prom/prometheus:v2.22.2
+    container_name: prometheus
+    networks:
+      - demo_net
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./prometheus/alert_rules.yaml:/etc/prometheus/alert_rules.yaml
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yaml"
+      - "--web.enable-lifecycle"
+    logging: *x-logging-stdout
+    healthcheck:
+      test: "wget --spider --server-response --quiet 'http://localhost:9090/-/healthy' 2>&1 || exit 1"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  grafana:
+    image: grafana/grafana:7.3.3
+    container_name: grafana
+    networks:
+      - demo_net
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    logging: *x-logging-stdout
+    healthcheck:
+      test: "wget --spider --server-response --quiet 'http://localhost:3000/api/health' 2>&1 | grep 'HTTP/.* 200' || exit 1"
       interval: 30s
       timeout: 5s
       retries: 3
