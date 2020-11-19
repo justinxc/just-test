@@ -3,7 +3,7 @@
 global:
   scrape_interval: 5s
   external_labels:
-    monitor: "demo-monitor"
+    monitor: "demo"
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
@@ -13,14 +13,12 @@ rule_files:
 alerting:
   alertmanagers:
     - static_configs:
-        - targets: ["host.docker.internal:9093"]
+        - targets: ["alertmanager:9093"]
 
 scrape_configs:
   - job_name: "prometheus"
     static_configs:
-      - targets: ["localhost:9090"]
-  - job_name: "web_monitor"
-    scrape_interval: 5s
-    metrics_path: /metrics
+      - targets: ["prometheus:9090"]
+  - job_name: "web"
     static_configs:
-      - targets: ["host.docker.internal:5000"]
+      - targets: ["web:5000"]

@@ -1,25 +1,25 @@
 groups:
-  - name: stability_cases
+  - name: web_unhealth
     rules:
-      - alert: ApiOutOfService
-        expr: up{job="api_monitor"} == 0
+      - alert: web_unhealth
+        expr: up{job="web"} == 0
         for: 10s
         labels:
-          role: api
+          role: web
           type: stability
         annotations:
-          summary: "api_mointor is out of service!"
+          summary: "web is out of service"
           description: "{{ $labels.instance }} of job {{ $labels.job }} has out of service for more than 10 sec."
           username: "@channel"
-  - name: performance_cases
+  - name: web_gets_many_requests
     rules:
-      - alert: TooManyReq
-        expr: rate(request_count_total{job="api_monitor"}[1m]) > 1
+      - alert: web_gets_many_requests
+        expr: rate(request_in_total{job="web"}[10s]) > 10
         for: 10s
         labels:
-          role: api
-          type: performance
+          role: web
+          type: stability
         annotations:
-          summary: "request_count_total is too over!"
+          summary: ""
           description: "{{ $labels.instance }} of job {{ $labels.job }} has over 60 requests/minute for more than 10 sec."
           username: "@channel"
