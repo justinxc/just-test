@@ -53,8 +53,9 @@ jobs:
           ### init variables
           ###
           VERSION=${GITHUB_SHA:0:8}
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,' | sed -e 's/^v//')
           IMAGE_ID_VERSION=${IMAGE_ID}:${VERSION}
+          echo IMAGE_ID_VERSION: ${IMAGE_ID_VERSION}
 
           ###
           ### push images to registry
