@@ -180,6 +180,9 @@ GET /metrics
     - web 的 up 狀態為 0，並持續 10 秒
     - web 在10秒內收到的 request 數量超過 10 筆，並持續 10 秒
 
+![monitoring.png](https://github.com/justinxc/flask-realworld-example-app/blob/test/monitoring.png)
+
+
 ## Stress Tool
 使用 [vegeta](https://github.com/tsenart/vegeta)，以平均 50 request/sec 並持續100秒，以模擬大量 request 打入 web service 的狀態
 ```
