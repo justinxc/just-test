@@ -16,3 +16,7 @@ psycopg2
 Flask-Migrate
 gunicorn
 Flask-Cors
+
+
+### monitor
+prometheus_client
