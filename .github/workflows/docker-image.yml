@@ -14,6 +14,8 @@ env:
 
 jobs:
   build:
+    ### only run while push event in branch test
+    if: startsWith(github.ref, 'refs/heads/test')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -53,7 +55,6 @@ jobs:
           ### init variables
           ###
           VERSION=${GITHUB_SHA:0:8}
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,' | sed -e 's/^v//')
           IMAGE_ID_VERSION=${IMAGE_ID}:${VERSION}
           echo IMAGE_ID_VERSION: ${IMAGE_ID_VERSION}
 
@@ -63,9 +64,38 @@ jobs:
           docker tag $IMAGE_NAME ${IMAGE_ID_VERSION}
           docker push ${IMAGE_ID_VERSION}
 
+  tag_image:
+    ### only run while tag event is got
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Tag existed docker image
+        run: |
+
+          ###
+          ### init variables
+          ###
+          SHA=${GITHUB_SHA:0:8}
+          IMAGE_ID_SHA=${IMAGE_ID}:${SHA}
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,' | sed -e 's/^v//')
+          IMAGE_ID_VERSION=${IMAGE_ID}:${VERSION}
+
+          ###
+          ### tag image and push
+          ###
+          echo IMAGE_ID_SHA: ${IMAGE_ID_SHA}
+          docker pull ${IMAGE_ID_SHA}
+          echo IMAGE_ID_VERSION: ${IMAGE_ID_VERSION}
+          docker tag ${IMAGE_ID_SHA} ${IMAGE_ID_VERSION}
+          docker push ${IMAGE_ID_VERSION}
+
   deploy:
     needs: build
-    name: deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
