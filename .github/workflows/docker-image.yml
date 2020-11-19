@@ -2,7 +2,11 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [test]
+    branches:
+      - test
+    # Publish `v1.2.3` tags as releases.
+    tags:
+      - v*
 
 env:
   IMAGE_NAME: flask-realworld-example-app
@@ -10,6 +14,7 @@ env:
 
 jobs:
   build:
+    if: github.event.base_ref == 'refs/heads/test'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
