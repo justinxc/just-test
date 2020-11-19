@@ -14,7 +14,6 @@ env:
 
 jobs:
   build:
-    if: github.event.base_ref == 'refs/heads/test'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
