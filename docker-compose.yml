@@ -58,6 +58,7 @@ services:
 
   web:
     container_name: web
+    build: .
     image: flask-realworld-example-app
     networks:
       - demo_net
@@ -68,3 +69,9 @@ services:
       - FLASK_DEBUG=0
       - DATABASE_URL=postgresql://postgres:changeme@host.docker.internal:5432/realworld
     logging: *x-logging-stdout
+    healthcheck:
+      test: "wget --spider --server-response --quiet 'http://localhost:5000/metrics' 2>&1 | grep 'HTTP/.* 200' || exit 1"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
