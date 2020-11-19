@@ -2,39 +2,48 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ test ]
+    branches: [test]
 
 env:
   IMAGE_NAME: flask-realworld-example-app
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: |
-        ####################
-        ### init variables
-        ####################
-        COMMIT_SHORT_SHA=$(git rev-parse --short "$GITHUB_SHA")
-        IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
-        IMAGE_ID_LATEST=$IMAGE_ID:latest
-        IMAGE_ID_SHA=$IMAGE_ID:$COMMIT_SHORT_SHA
-        ####################
-        ### build docker image
-        ####################
-        docker build . --file Dockerfile --tag $IMAGE_ID:$IMAGE_ID_SHA --tag $IMAGE_ID_LATEST
+      - uses: actions/checkout@v2
+      - name: Build the Docker image
+        run: |
+          ####################
+          ### init variables
+          ####################
+          COMMIT_SHORT_SHA=${GITHUB_SHA:0:8}
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/${IMAGE_NAME}
+          IMAGE_ID_LATEST=${IMAGE_ID}:latest
+          IMAGE_ID_SHA=${IMAGE_ID}:${COMMIT_SHORT_SHA}
+          ####################
+          ### build docker image
+          ####################
+          docker build . --file Dockerfile --tag ${IMAGE_ID_SHA} --tag ${IMAGE_ID_LATEST}
 
   test:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
       - uses: actions/checkout@v2
-
       - name: Run tests
         run: |
-          docker-compose -f docker-compose.test.yml run test
+          ####################
+          ### init variables
+          ####################
+          DOCKER_COMPOSE_FILE=docker-compose.test.yml
+          ####################
+          ### run test cases
+          ####################
+          if [ -f "$DOCKER_COMPOSE_FILE" ];
+          then
+            docker-compose -f ${DOCKER_COMPOSE_FILE} run test
+          else
+            echo "OMG!! skip due to no configuration"
+          fi
