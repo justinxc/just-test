@@ -68,7 +68,27 @@ jobs:
     name: deploy
     runs-on: ubuntu-latest
     steps:
-      - name: executing remote ssh commands using password
+      - uses: actions/checkout@v2
+      - name: info
+        run: |
+
+          ###
+          ### init variables
+          ###
+          VERSION=${GITHUB_SHA:0:8}
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,' | sed -e 's/^v//')
+          IMAGE_ID_VERSION=${IMAGE_ID}:${VERSION}
+          echo IMAGE_ID_VERSION: ${IMAGE_ID_VERSION}
+
+          ###
+          ### deploy service with docker-compose file
+          ###
+          echo --> ssh to remote host
+          echo --> pull latest docker-compose from github
+          echo --> pull target image based on IMAGE_ID_VERSION
+          echo --> set up service by docker-compose
+
+      - name: deploy to dev
         uses: appleboy/ssh-action@master
         continue-on-error: true ### TODO: remove me after remote host is configured well
         with:
@@ -76,18 +96,4 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
-
-            ###
-            ### init variables
-            ###
-            VERSION=${GITHUB_SHA:0:8}
-            [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,' | sed -e 's/^v//')
-            IMAGE_ID_VERSION=${IMAGE_ID}:${VERSION}
-            echo IMAGE_ID_VERSION: ${IMAGE_ID_VERSION}
-
-            ###
-            ### deploy service with docker-compose file
-            ###
-            echo --> pull latest docker-compose from github
-            echo --> pull target image based on IMAGE_ID_VERSION
-            echo --> set up service by docker-compose
+            echo --> do something on remote host
