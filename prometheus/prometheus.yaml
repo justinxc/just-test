@@ -1,0 +1,26 @@
+# 設定 global 全域設定
+# scrape_interval 是多久抓取一次資料
+global:
+  scrape_interval: 5s
+  external_labels:
+    monitor: "demo-monitor"
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - /etc/prometheus/*_rules.yaml
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["host.docker.internal:9093"]
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+  - job_name: "web_monitor"
+    scrape_interval: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:5000"]
