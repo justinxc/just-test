@@ -9,18 +9,18 @@ groups:
           type: stability
         annotations:
           summary: "web is out of service"
-          description: "{{ $labels.instance }} of job {{ $labels.job }} has out of service for 1m."
+          description: "{{ $labels.instance }} has out of service for 1m."
           username: "@channel"
   - name: web_gets_many_requests
     rules:
       - alert: web_gets_many_requests
-        expr: sum by (instance) (rate (flask_http_request_total{job=~".*-web"} [1m])) > 60
+        expr: sum by (instance) (rate (flask_http_request_total{job=~".*-web"} [1m])) > 5
         for: 1m
         labels:
           role: web
           type: stability
         annotations:
           summary: "too many request sent to web"
-          description: "{{ $labels.instance }} of job {{ $labels.job }} has over 60 requests/minute for 1m."
+          description: "{{ $labels.instance }} has over 5 RPS for 1m."
           username: "@channel"
 

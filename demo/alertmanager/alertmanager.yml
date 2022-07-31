@@ -6,7 +6,7 @@ route:
   group_wait: 10s
   group_interval: 25s
   repeat_interval: 1m
-  receiver: "slack_def"
+  receiver: "slack_000"
   routes:
     - receiver: slack_002
       group_by: ["alertname", "type", "role"]
@@ -14,16 +14,16 @@ route:
         type: stability1
 
 receivers:
-  - name: "slack_def"
+  - name: "slack_000"
     slack_configs:
-      - api_url: "https://hooks.slack.com/services/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"
+      - api_url: "https://hooks.slack.com/services/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"
         channel: "#monitoring"
         text: 'rule #000: {{ if eq .Status "firing" }} Un-healthy!! {{ else }} Healthy!! {{ end }} {{ .CommonAnnotations.description }}'
         title: "{{.CommonAnnotations.summary}}"
         send_resolved: true
   - name: "slack_002"
     slack_configs:
-      - api_url: "https://hooks.slack.com/services/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"
+      - api_url: "https://hooks.slack.com/services/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"
         channel: "#monitoring"
         text: 'rule #001: {{ if eq .Status "firing" }} Un-healthy!! {{ else }} Healthy!! {{ end }} {{ .CommonAnnotations.description }}'
         title: "{{.CommonAnnotations.summary}}"
