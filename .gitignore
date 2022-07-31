@@ -55,3 +55,8 @@ dev.db
 
 # Vagrant machines
 .vagrant/**
+
+# exclude demo dir, but not these files
+!./demo/**/*.yml
+!./demo/**/*.yaml
+
