@@ -2,7 +2,7 @@ groups:
   - name: web_unhealth
     rules:
       - alert: web_unhealth
-        expr: up{job=~".*-web"} == 0
+        expr: probe_http_status_code{instance=~".*"} == 0
         for: 1m
         labels:
           role: web
@@ -20,7 +20,7 @@ groups:
           role: web
           type: stability
         annotations:
-          summary: ""
+          summary: "too many request sent to web"
           description: "{{ $labels.instance }} of job {{ $labels.job }} has over 60 requests/minute for 1m."
           username: "@channel"
 

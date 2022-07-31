@@ -77,7 +77,6 @@ services:
 
   alertmanager:
     image: prom/alertmanager:v0.24.0
-    container_name: alertmanager
     networks:
       - dev_net
     ports:
