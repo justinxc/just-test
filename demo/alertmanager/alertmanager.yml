@@ -1,0 +1,31 @@
+global:
+  resolve_timeout: 2m
+
+route:
+  group_by: ["alertname"]
+  group_wait: 10s
+  group_interval: 25s
+  repeat_interval: 1m
+  receiver: "slack_def"
+  routes:
+    - receiver: slack_002
+      group_by: ["alertname", "type", "role"]
+      match:
+        type: stability1
+
+receivers:
+  - name: "slack_def"
+    slack_configs:
+      - api_url: "https://hooks.slack.com/services/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"
+        channel: "#monitoring"
+        text: 'slack_def: {{ if eq .Status "firing" }} Un-healthy!! {{ else }} Healthy {{ end }}'
+        title: "{{.CommonAnnotations.summary}}"
+        send_resolved: true
+  - name: "slack_002"
+    slack_configs:
+      - api_url: "https://hooks.slack.com/services/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"
+        channel: "#monitoring"
+        text: 'slack_002: {{ if eq .Status "firing" }} Un-healthy!! {{ else }} Healthy {{ end }}'
+        title: "{{.CommonAnnotations.summary}}"
+        send_resolved: true
+

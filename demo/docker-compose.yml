@@ -1,0 +1,115 @@
+version: "3.8"
+
+x-logging-stdout: &x-logging-stdout
+  driver: "json-file"
+  options:
+    max-size: "1m"
+    max-file: "1"
+
+services:
+  ########################################
+  # web service
+  ########################################
+  flask-web:
+    build: ../
+    image: flask-realworld-example-app
+    networks:
+      - dev_net
+    ports:
+      - 5566:5000
+    environment:
+      - FLASK_APP=/app/autoapp.py
+      - FLASK_DEBUG=0
+      - DATABASE_URL=postgresql://postgres:changeme@host.docker.internal:5432/realworld
+      - CONDUIT_SECRET=changeme
+    logging: *x-logging-stdout
+    healthcheck:
+      test: "wget --spider --server-response --quiet 'http://localhost:5000/health' 2>&1 | grep 'HTTP/.* 200' || exit 1"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+
+  ########################################
+  # monitoring
+  ########################################
+  prometheus:
+    image: prom/prometheus:v2.37.0
+    networks:
+      - dev_net
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/data:/prometheus
+      - ./prometheus/etc/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/etc/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-lifecycle"
+    logging: *x-logging-stdout
+    healthcheck:
+      test: "wget --spider --server-response --quiet 'http://localhost:9090/-/healthy' 2>&1 || exit 1"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  grafana:
+    image: grafana/grafana:9.0.5
+    networks:
+      - dev_net
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=changeme
+    depends_on:
+      - prometheus
+    logging: *x-logging-stdout
+    healthcheck:
+      test: "wget --spider --server-response --quiet 'http://localhost:3000/api/health' 2>&1 | grep 'HTTP/.* 200' || exit 1"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  alertmanager:
+    image: prom/alertmanager:v0.24.0
+    container_name: alertmanager
+    networks:
+      - dev_net
+    ports:
+      - 9093:9093
+    volumes:
+      - ./alertmanager/alertmanager.yml/:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+    healthcheck:
+      test: "wget --spider --server-response --quiet 'http://localhost:9093/-/healthy' 2>&1 || exit 1"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  blackbox-exporter:
+    image: 'prom/blackbox-exporter:v0.21.1'
+    ports:
+      - '9115:9115'
+    volumes:
+      - ./blackbox-exporter/config/:/config:ro
+    command:
+      - '--config.file=/config/blackbox.yml'    
+
+networks:
+  dev_net: {}
