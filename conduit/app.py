@@ -7,6 +7,7 @@ from conduit import commands, user, profile, articles
 from conduit.settings import ProdConfig
 from conduit.exceptions import InvalidUsage
 
+from prometheus_flask_exporter import PrometheusMetrics
 
 def create_app(config_object=ProdConfig):
     """An application factory, as explained here:
@@ -32,6 +33,8 @@ def register_extensions(app):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    metrics = PrometheusMetrics.for_app_factory()
+    metrics.init_app(app)
 
 
 def register_blueprints(app):
