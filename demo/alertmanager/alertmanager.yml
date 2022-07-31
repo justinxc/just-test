@@ -16,16 +16,16 @@ route:
 receivers:
   - name: "slack_def"
     slack_configs:
-      - api_url: "https://hooks.slack.com/services/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"
+      - api_url: "https://hooks.slack.com/services/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"
         channel: "#monitoring"
-        text: 'slack_def: {{ if eq .Status "firing" }} Un-healthy!! {{ else }} Healthy {{ end }}'
+        text: 'rule #000: {{ if eq .Status "firing" }} Un-healthy!! {{ else }} Healthy!! {{ end }} {{ .CommonAnnotations.description }}'
         title: "{{.CommonAnnotations.summary}}"
         send_resolved: true
   - name: "slack_002"
     slack_configs:
-      - api_url: "https://hooks.slack.com/services/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"
+      - api_url: "https://hooks.slack.com/services/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"
         channel: "#monitoring"
-        text: 'slack_002: {{ if eq .Status "firing" }} Un-healthy!! {{ else }} Healthy {{ end }}'
+        text: 'rule #001: {{ if eq .Status "firing" }} Un-healthy!! {{ else }} Healthy!! {{ end }} {{ .CommonAnnotations.description }}'
         title: "{{.CommonAnnotations.summary}}"
         send_resolved: true
 

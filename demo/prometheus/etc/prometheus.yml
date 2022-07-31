@@ -1,14 +1,15 @@
 global:
-  scrape_interval:     30s # Set the scrape interval to every 15 seconds.
-  evaluation_interval: 30s # Evaluate rules every 15 seconds.
+  scrape_interval:     30s
+  evaluation_interval: 30s
 
 alerting:
  alertmanagers:
    - static_configs:
      - targets:
-       - host.docker.internal:9093 # Alertmanager's address
+       - host.docker.internal:9093
 
 rule_files:
+  - "/etc/prometheus/*_rules.yml"
   - "/etc/prometheus/*_rules.yaml"
 
 scrape_configs:
