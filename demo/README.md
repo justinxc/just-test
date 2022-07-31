@@ -18,7 +18,7 @@ docker-compose -f docker-compose.yml up -d
 
 # Architecture
 
-![monitoring.png](https://github.com/justinxc/flask-realworld-example-app/blob/demo/resources/monitoring.drawio.png)
+![monitoring.drawio.png](https://github.com/justinxc/flask-realworld-example-app/blob/demo/demo/resources/monitoring.drawio.png)
 
 ## Web/API Service
 
@@ -54,9 +54,9 @@ Monitoring service should send alarms while one of following criteria is hit
 2. website gets too many request (> 5 rps) for 1 minute
    - expr: `sum by (instance) (rate (flask_http_request_total{job=~".*-web"} [1m])) > 5`
 
-![example_web_down.png](https://github.com/justinxc/flask-realworld-example-app/blob/demo/resources/example_web_down.drawio.png)
+![example_web_down.drawio.png](https://github.com/justinxc/flask-realworld-example-app/blob/demo/demo/resources/example_web_down.drawio.png)
 
-![example_high_rps.png](https://github.com/justinxc/flask-realworld-example-app/blob/demo/resources/example_high_rps.drawio.png)
+![example_high_rps.drawio.png](https://github.com/justinxc/flask-realworld-example-app/blob/demo/demo/resources/example_high_rps.drawio.png)
 
 ## Load Testing
 
@@ -75,7 +75,7 @@ cd flask-realworld-example-app/demo/test
 
 ## Workflow
 
-![example_high_rps.png](https://github.com/justinxc/flask-realworld-example-app/blob/demo/resources/cicd.drawio.png)
+![cicd.drawio.png](https://github.com/justinxc/flask-realworld-example-app/blob/demo/demo/resources/cicd.drawio.png)
 
 Assume we choose `Trunk-Based Development` as our git flow.
 
