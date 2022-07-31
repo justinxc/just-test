@@ -2,17 +2,22 @@
 
 Werkzeug
 SQLAlchemy==1.1.9
-Flask_Caching
+Flask_Caching~=1.10.1
 Flask_SQLAlchemy==2.2
 click
 marshmallow
-Flask_Bcrypt
-flask_apispec
-Flask
+Flask_Bcrypt~=1.0.1
+flask_apispec~=0.11.1
+Flask~=1.1.2
 PyJWT
-Flask-JWT-Extended
+Flask-JWT-Extended~=3.25.0
 unicode_slugify
 psycopg2
-Flask-Migrate
+Flask-Migrate~=3.1.0
 gunicorn
-Flask-Cors
+Flask-Cors~=3.0.10
+
+## add version limit to work with python 3.7+
+jinja2~=3.0.3
+itsdangerous~=2.0.1
+Werkzeug~=2.0.3
