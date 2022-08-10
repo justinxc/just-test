@@ -1,26 +1,38 @@
 groups:
-  - name: web_unhealth
+  - name: blackbox_for_website
     rules:
-      - alert: web_unhealth
-        expr: probe_http_status_code{instance=~".*"} == 0
+      - alert: web_down
+        expr: |
+          max by (instance) (probe_http_status_code)
+          == 0
         for: 1m
         labels:
-          role: web
           type: stability
         annotations:
-          summary: "web is out of service"
-          description: "{{ $labels.instance }} has out of service for 1m."
-          username: "@channel"
-  - name: web_gets_many_requests
-    rules:
-      - alert: web_gets_many_requests
-        expr: sum by (instance) (rate (flask_http_request_total{job=~".*-web"} [1m])) > 5
-        for: 1m
-        labels:
-          role: web
-          type: stability
-        annotations:
-          summary: "too many request sent to web"
-          description: "{{ $labels.instance }} has over 5 RPS for 1m."
-          username: "@channel"
+          summary: "web is down"
+          description: "{{ $labels.instance }} is down for 1m."
 
+  - name: http_requests
+    rules:
+      - alert: http_5xx_rate_high
+        expr: |
+          sum by (instance) (rate(http_requests_total{status=~"5XX"} [2m]))
+          / sum by (instance) (rate(http_requests_total{status=~".*"} [2m]))
+          > 0.05
+        for: 1m
+        labels:
+          type: stability
+        annotations:
+          summary: "HTTP 5xx rate is high"
+          description: "{{ $labels.instance }} produces HTTP_5xx rate > 5% within 1m."
+
+      - alert: http_request_rate_high
+        expr: |
+          sum by (instance) (rate (http_requests_total{} [2m]))
+          > 1
+        for: 1m
+        labels:
+          type: stability
+        annotations:
+          summary: "HTTP requests rate is high"
+          description: "{{ $labels.instance }} gets request > 1 RPS within 1m."
