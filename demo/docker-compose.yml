@@ -96,7 +96,7 @@ services:
     ports:
       - 9093:9093
     volumes:
-      - ./alertmanager/alertmanager.yml/:/etc/alertmanager/alertmanager.yml:ro
+      - ./alertmanager/:/etc/alertmanager/:ro
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"

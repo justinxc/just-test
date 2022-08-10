@@ -8,6 +8,7 @@ groups:
         for: 1m
         labels:
           type: stability
+          severity: critical
         annotations:
           summary: "web is down"
           description: "{{ $labels.instance }} is down for 1m."
@@ -22,6 +23,7 @@ groups:
         for: 1m
         labels:
           type: stability
+          severity: critical
         annotations:
           summary: "HTTP 5xx rate is high"
           description: "{{ $labels.instance }} produces HTTP_5xx rate > 5% within 1m."
@@ -33,6 +35,7 @@ groups:
         for: 1m
         labels:
           type: stability
+          severity: warning
         annotations:
           summary: "HTTP requests rate is high"
           description: "{{ $labels.instance }} gets request > 1 RPS within 1m."
