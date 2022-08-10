@@ -17,9 +17,14 @@ scrape_configs:
     static_configs:
     - targets: ['host.docker.internal:9090']
 
-  - job_name: 'flask-web'
+  - job_name: 'whitebox'
     static_configs:
     - targets: ['host.docker.internal:5566']
+      labels:
+        type: 'api'
+    - targets: ['host.docker.internal:3333']
+      labels:
+        type: 'api'
 
   - job_name: 'blackbox_exporter'
     metrics_path: /probe
@@ -28,6 +33,7 @@ scrape_configs:
     static_configs:
       - targets:
         - http://host.docker.internal:5566/health    # Target to probe with http module.
+        - http://host.docker.internal:3333/health
         - https://health.aws.amazon.com/health/status
     relabel_configs:
       - source_labels: [__address__]
