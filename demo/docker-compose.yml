@@ -22,6 +22,7 @@ services:
       - FLASK_DEBUG=0
       - DATABASE_URL=postgresql://postgres:changeme@host.docker.internal:5432/realworld
       - CONDUIT_SECRET=changeme
+    restart: unless-stopped
     logging: *x-logging-stdout
     healthcheck:
       test: "wget --spider --server-response --quiet 'http://localhost:5000/health' 2>&1 | grep 'HTTP/.* 200' || exit 1"
@@ -30,6 +31,12 @@ services:
       retries: 3
       start_period: 10s
 
+  echo-server:
+    image: 'my/echo-server:v0.1.0'
+    ports:
+      - '3333:80'
+    restart: unless-stopped
+    logging: *x-logging-stdout
 
   ########################################
   # monitoring
@@ -41,13 +48,17 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/data:/prometheus
-      - ./prometheus/etc/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./prometheus/etc/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - ./prometheus/data:/prometheus/data
+      - ./prometheus/etc/:/etc/prometheus/:ro
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--web.enable-lifecycle"
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    restart: unless-stopped
     logging: *x-logging-stdout
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
       test: "wget --spider --server-response --quiet 'http://localhost:9090/-/healthy' 2>&1 || exit 1"
       interval: 30s
@@ -67,7 +78,10 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=changeme
     depends_on:
       - prometheus
+    restart: unless-stopped
     logging: *x-logging-stdout
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
       test: "wget --spider --server-response --quiet 'http://localhost:3000/api/health' 2>&1 | grep 'HTTP/.* 200' || exit 1"
       interval: 30s
@@ -86,14 +100,10 @@ services:
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"
-    restart: unless-stopped
     depends_on:
       - prometheus
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "1m"
-        max-file: "1"
+    restart: unless-stopped
+    logging: *x-logging-stdout
     healthcheck:
       test: "wget --spider --server-response --quiet 'http://localhost:9093/-/healthy' 2>&1 || exit 1"
       interval: 30s
@@ -109,6 +119,10 @@ services:
       - ./blackbox-exporter/config/:/config:ro
     command:
       - '--config.file=/config/blackbox.yml'    
+    restart: unless-stopped
+    logging: *x-logging-stdout
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   dev_net: {}
